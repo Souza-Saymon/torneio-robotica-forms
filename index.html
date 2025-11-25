@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Formulários – Torneio de Robótica</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --cor-primaria: #2563eb;
+      --cor-primaria-clara: #dbeafe;
+      --cor-fundo: #f5f5f7;
+      --cor-card: #ffffff;
+      --cor-borda: #e5e7eb;
+      --cor-texto: #111827;
+      --cor-subtexto: #4b5563;
+      --cor-chip: #eff6ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #e0f2fe 0, #f5f5f7 50%);
+      color: var(--cor-texto);
+      margin: 0;
+      padding: 20px;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    body.dark {
+      --cor-primaria: #38bdf8;
+      --cor-primaria-clara: #0b1120;
+      --cor-fundo: #020617;
+      --cor-card: #020617;
+      --cor-borda: #1e293b;
+      --cor-texto: #e5e7eb;
+      --cor-subtexto: #9ca3af;
+      --cor-chip: #0f172a;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 50%);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .subtitulo {
+      text-align: center;
+      margin-bottom: 24px;
+      color: var(--cor-subtexto);
+      font-size: 14px;
+    }
+
+    .card {
+      background: var(--cor-card);
+      border-radius: 16px;
+      padding: 20px 20px 24px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.25);
+      border: 1px solid var(--cor-borda);
+      margin-bottom: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--cor-chip);
+      color: var(--cor-primaria);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .pill span {
+      font-size: 14px;
+    }
+
+    .theme-toggle {
+      border-radius: 999px;
+      border: 1px solid var(--cor-borda);
+      padding: 6px 10px;
+      background: transparent;
+      color: var(--cor-texto);
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .theme-toggle span {
+      font-size: 14px;
+    }
+
+    .linha {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .campo {
+      flex: 1 1 220px;
+      min-width: 0;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 13px;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+
+    input, select, button {
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      background: #f9fafb;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+      color: var(--cor-texto);
+    }
+
+    body.dark input,
+    body.dark select {
+      background: #020617;
+      border-color: #1e293b;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--cor-primaria);
+      background: #ffffff;
+      box-shadow: 0 0 0 1px var(--cor-primaria-clara);
+    }
+
+    body.dark input:focus,
+    body.dark select:focus {
+      background: #020617;
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 9px 18px;
+      background: var(--cor-primaria);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
+    }
+
+    button:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.35);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .msg {
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .msg.ok {
+      color: #22c55e;
+    }
+
+    .msg.erro {
+      color: #f97373;
+    }
+
+    .arena-section {
+      display: none;
+      margin-top: 8px;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .arena-section h2 {
+      margin-top: 0;
+      margin-bottom: 6px;
+      font-size: 18px;
+    }
+
+    .descricao-arena {
+      font-size: 12px;
+      color: var(--cor-subtexto);
+      margin-bottom: 12px;
+    }
+
+    .grupo-missao {
+      border: 1px dashed #e5e7eb;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-top: 8px;
+      background: #f9fafb;
+    }
+
+    body.dark .grupo-missao {
+      border-color: #1f2937;
+      background: #020617;
+    }
+
+    .grupo-missao h4 {
+      margin: 0 0 6px 0;
+      font-size: 14px;
+    }
+
+    .descricao-missao {
+      font-size: 12px;
+      color: var(--cor-subtexto);
+      margin-bottom: 6px;
+    }
+
+    /* checklist das missões como cards clicáveis */
+    #missoesChecklist {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .checkbox-missao {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--cor-borda);
+      background: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+    }
+
+    body.dark .checkbox-missao {
+      background: #020617;
+    }
+
+    .checkbox-missao input {
+      width: auto;
+      margin: 0;
+    }
+
+    .checkbox-missao.ativa {
+      background: var(--cor-chip);
+      border-color: var(--cor-primaria);
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .checkbox-missao span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .checkbox-missao span .icone {
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: var(--cor-primaria-clara);
+      color: var(--cor-primaria);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* container dos blocos de missão */
+    #missoesContainer {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* animação de expand/colapse das missões */
+    .missao-detalhe {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transform: translateY(-4px);
+      transition: max-height 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .missao-detalhe.ativa {
+      max-height: 260px; /* suficiente para o conteúdo */
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .total {
+      font-weight: 700;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    .badge-rodape {
+      font-size: 11px;
+      color: var(--cor-subtexto);
+      text-align: right;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 640px) {
+      .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Torneio de Robótica – Registro de Avaliações</h1>
+    <div class="subtitulo">
+      Preencha o nome do juiz, escolha a arena e responda às perguntas específicas daquela prova.
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="pill">
+            <span>⚙️</span> Formulário dinâmico
+          </div>
+          <div style="font-size:13px; color:var(--cor-subtexto); margin-top:4px;">
+            Os dados são enviados diretamente para o Supabase para alimentar o Power BI.
+          </div>
+        </div>
+        <button type="button" id="themeToggle" class="theme-toggle">
+          <span id="themeIcon">🌙</span>
+          <span id="themeLabel">Modo escuro</span>
+        </button>
+      </div>
+
+      <!-- Dados globais -->
+      <div class="linha">
+        <div class="campo">
+          <label for="juizGlobal">Nome do juiz avaliador</label>
+          <input type="text" id="juizGlobal" placeholder="Digite seu nome" required />
+        </div>
+        <div class="campo">
+          <label for="arenaSelect">Selecione a Arena</label>
+          <select id="arenaSelect">
+            <option value="">Escolha...</option>
+            <option value="arena1">Arena 1 – Sumô de Robôs</option>
+            <option value="arena3">Arena 3 – Robô Lego e Desafios</option>
+            <option value="arena4">Arena 4 – Robô Dançarino</option>
+          </select>
+        </div>
+      </div>
+      <div id="msgGlobal" class="msg"></div>
+
+      <!-- ======================= ARENA 1 ======================= -->
+      <section class="arena-section" id="arena1">
+        <h2>ARENA 1 – Sumô de Robôs</h2>
+        <p class="descricao-arena">
+          Vitória = 3 pontos, empate = 1 ponto para cada equipe, derrota = 0 pontos.
+          Os 3 rounds determinarão a pontuação total de cada equipe.
+        </p>
+
+        <form id="formArena1">
+          <div class="linha">
+            <div class="campo">
+              <label for="a1_juiz">Juiz (preenchido automaticamente)</label>
+              <input type="text" id="a1_juiz" disabled />
+            </div>
+          </div>
+
+          <div class="linha">
+            <div class="campo">
+              <label for="a1_equipe1">Nome da 1ª equipe</label>
+              <select id="a1_equipe1" class="select-equipe" required>
+                <option value="">Selecione a equipe</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="a1_equipe2">Nome da 2ª equipe</label>
+              <select id="a1_equipe2" class="select-equipe" required>
+                <option value="">Selecione a equipe</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="linha">
+            <div class="campo">
+              <label for="a1_r1">1º Round</label>
+              <select id="a1_r1" required>
+                <option value="">Resultado</option>
+                <option value="e1">Equipe 1 venceu</option>
+                <option value="empate">Empate</option>
+                <option value="e2">Equipe 2 venceu</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="a1_r2">2º Round</label>
+              <select id="a1_r2" required>
+                <option value="">Resultado</option>
+                <option value="e1">Equipe 1 venceu</option>
+                <option value="empate">Empate</option>
+                <option value="e2">Equipe 2 venceu</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="a1_r3">3º Round</label>
+              <select id="a1_r3" required>
+                <option value="">Resultado</option>
+                <option value="e1">Equipe 1 venceu</option>
+                <option value="empate">Empate</option>
+                <option value="e2">Equipe 2 venceu</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit">Salvar resultado Arena 1</button>
+          <div class="msg" id="msgArena1"></div>
+        </form>
+      </section>
+
+      <!-- ======================= ARENA 3 ======================= -->
+      <section class="arena-section" id="arena3">
+        <h2>ARENA 3 – Robô Lego e Soluções de Desafios</h2>
+        <p class="descricao-arena">
+          Cada equipe realiza 2 rounds de 3min30. O ranking final considerará a maior pontuação entre os dois rounds.
+        </p>
+
+        <form id="formArena3">
+          <div class="linha">
+            <div class="campo">
+              <label for="a3_juiz">Juiz (preenchido automaticamente)</label>
+              <input type="text" id="a3_juiz" disabled />
+            </div>
+          </div>
+
+          <div class="linha">
+            <div class="campo">
+              <label for="a3_equipe">Equipe</label>
+              <select id="a3_equipe" class="select-equipe" required>
+                <option value="">Selecione a equipe</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="a3_round">Round</label>
+              <select id="a3_round" required>
+                <option value="">Selecione o round</option>
+                <option value="1">Round 1</option>
+                <option value="2">Round 2</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- M00 -->
+          <div class="grupo-missao">
+            <h4>M00 - Identidade da Equipe (obrigatória, sem pontuação)</h4>
+            <p class="descricao-missao">
+              Apenas marque se a missão foi cumprida. Não adiciona pontos, mas será registrada no banco.
+            </p>
+            <label>
+              Cumpriu a missão M00?
+              <select id="m00_cumpriu">
+                <option value="nao">Não</option>
+                <option value="sim">Sim</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- Checklist de missões -->
+          <div class="grupo-missao">
+            <h4>Selecione as missões realizadas</h4>
+            <p class="descricao-missao">
+              Marque apenas as missões que a equipe tentou/executou neste round. Ao marcar, os campos daquela missão aparecerão.
+            </p>
+            <div id="missoesChecklist"></div>
+          </div>
+
+          <!-- Campos das missões -->
+          <div id="missoesContainer"></div>
+
+          <p class="total">Pontuação total deste round (Arena 3): <span id="a3_total">0</span> pontos</p>
+
+          <button type="submit">Salvar resultado Arena 3</button>
+          <div class="msg" id="msgArena3"></div>
+        </form>
+      </section>
+
+      <!-- ======================= ARENA 4 ======================= -->
+      <section class="arena-section" id="arena4">
+        <h2>ARENA 4 – Robô Dançarino</h2>
+        <p class="descricao-arena">
+          O juiz atribui manualmente a pontuação de cada critério, respeitando o limite máximo indicado.
+        </p>
+
+        <form id="formArena4">
+          <div class="linha">
+            <div class="campo">
+              <label for="a4_juiz">Juiz (preenchido automaticamente)</label>
+              <input type="text" id="a4_juiz" disabled />
+            </div>
+          </div>
+
+          <div class="linha">
+            <div class="campo">
+              <label for="a4_equipe">Equipe</label>
+              <select id="a4_equipe" class="select-equipe" required>
+                <option value="">Selecione a equipe</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="linha">
+            <div class="campo">
+              <label for="a4_visual">Visual (0 a 20 pontos)</label>
+              <input type="number" id="a4_visual" min="0" max="20" value="0" required />
+            </div>
+            <div class="campo">
+              <label for="a4_movimento">Qualidade do movimento (0 a 30 pontos)</label>
+              <input type="number" id="a4_movimento" min="0" max="30" value="0" required />
+            </div>
+          </div>
+
+          <div class="linha">
+            <div class="campo">
+              <label for="a4_funcionalidade">Funcionalidade (0 a 30 pontos)</label>
+              <input type="number" id="a4_funcionalidade" min="0" max="30" value="0" required />
+            </div>
+            <div class="campo">
+              <label for="a4_originalidade">Originalidade (0 a 20 pontos)</label>
+              <input type="number" id="a4_originalidade" min="0" max="20" value="0" required />
+            </div>
+          </div>
+
+          <p class="total">Pontuação total (Arena 4): <span id="a4_total">0</span> pontos</p>
+
+          <button type="submit">Salvar resultado Arena 4</button>
+          <div class="msg" id="msgArena4"></div>
+        </form>
+      </section>
+
+      <div class="badge-rodape">
+        Dados enviados para Supabase → Power BI (ranking por equipe).
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase JS -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
+    // ================= CONFIGURAÇÃO SUPABASE ====================
+    const SUPABASE_URL = "https://vnasrqpcilxuksmgvprx.supabase.co"; // TROCAR
+    const SUPABASE_ANON_KEY = "sb_publishable_aALsWo2-IDZht6LiFskQwg_iCp3niYW"; // TROCAR
+
+    const TABELA_ARENA1 = "DM_Arena1"; // ajuste para o nome real
+    const TABELA_ARENA3 = "DM_Arena3";
+    const TABELA_ARENA4 = "DM_Arena4";
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ================= LISTA DE EQUIPES =========================
+    const EQUIPES = [
+      "Equipe Alfa",
+      "Equipe Beta",
+      "Equipe Gama",
+      "Equipe Delta"
+      // coloque todas as equipes aqui
+    ];
+
+    function preencherSelectsEquipes() {
+      const selects = document.querySelectorAll(".select-equipe");
+      selects.forEach(sel => {
+        while (sel.options.length > 1) sel.remove(1);
+        EQUIPES.forEach(eq => {
+          const o = document.createElement("option");
+          o.value = eq;
+          o.textContent = eq;
+          sel.appendChild(o);
+        });
+      });
+    }
+
+    // ================== MODO CLARO/ESCURO ==================
+    const themeToggle = document.getElementById("themeToggle");
+    const themeIcon = document.getElementById("themeIcon");
+    const themeLabel = document.getElementById("themeLabel");
+
+    function setTheme(dark) {
+      if (dark) {
+        document.body.classList.add("dark");
+        themeIcon.textContent = "☀️";
+        themeLabel.textContent = "Modo claro";
+        localStorage.setItem("theme", "dark");
+      } else {
+        document.body.classList.remove("dark");
+        themeIcon.textContent = "🌙";
+        themeLabel.textContent = "Modo escuro";
+        localStorage.setItem("theme", "light");
+      }
+    }
+
+    themeToggle.addEventListener("click", () => {
+      const isDark = document.body.classList.contains("dark");
+      setTheme(!isDark);
+    });
+
+    // aplica tema salvo
+    (function initTheme() {
+      const saved = localStorage.getItem("theme");
+      if (saved === "dark") setTheme(true);
+    })();
+
+    // ================== CONTROLE GLOBAL (Juiz + Arena) ==================
+    const juizGlobalInput = document.getElementById("juizGlobal");
+    const arenaSelect = document.getElementById("arenaSelect");
+    const msgGlobal = document.getElementById("msgGlobal");
+
+    function syncJuiz() {
+      const nome = juizGlobalInput.value.trim();
+      ["a1_juiz", "a3_juiz", "a4_juiz"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = nome;
+      });
+    }
+
+    function mostrarArena(idArena) {
+      document.querySelectorAll(".arena-section").forEach(sec => {
+        sec.style.display = "none";
+      });
+      if (!idArena) return;
+      const sec = document.getElementById(idArena);
+      if (sec) sec.style.display = "block";
+    }
+
+    arenaSelect.addEventListener("change", () => {
+      msgGlobal.textContent = "";
+      if (!juizGlobalInput.value.trim()) {
+        msgGlobal.textContent = "Por favor, preencha o nome do juiz antes de selecionar a arena.";
+        msgGlobal.className = "msg erro";
+        arenaSelect.value = "";
+        return;
+      }
+      syncJuiz();
+      mostrarArena(arenaSelect.value);
+    });
+
+    juizGlobalInput.addEventListener("input", () => {
+      syncJuiz();
+    });
+
+    // ================= ARENA 1 – LÓGICA =========================
+    function calcularPontosArena1(r1, r2, r3) {
+      let p1 = 0, p2 = 0;
+      [r1, r2, r3].forEach(r => {
+        if (r === "e1") p1 += 3;
+        else if (r === "e2") p2 += 3;
+        else if (r === "empate") { p1 += 1; p2 += 1; }
+      });
+      return { pontosE1: p1, pontosE2: p2 };
+    }
+
+    async function enviarArena1(event) {
+      event.preventDefault();
+      const msg = document.getElementById("msgArena1");
+      msg.textContent = "";
+      msg.className = "msg";
+
+      const juiz = document.getElementById("a1_juiz").value.trim();
+      const equipe1 = document.getElementById("a1_equipe1").value;
+      const equipe2 = document.getElementById("a1_equipe2").value;
+      const r1 = document.getElementById("a1_r1").value;
+      const r2 = document.getElementById("a1_r2").value;
+      const r3 = document.getElementById("a1_r3").value;
+
+      if (!juiz || !equipe1 || !equipe2 || !r1 || !r2 || !r3) {
+        msg.textContent = "Preencha todos os campos.";
+        msg.className = "msg erro";
+        return;
+      }
+      if (equipe1 === equipe2) {
+        msg.textContent = "As duas equipes devem ser diferentes.";
+        msg.className = "msg erro";
+        return;
+      }
+
+      const { pontosE1, pontosE2 } = calcularPontosArena1(r1, r2, r3);
+
+      const payload = {
+        juiz,
+        equipe1,
+        equipe2,
+        round1_resultado: r1,
+        round2_resultado: r2,
+        round3_resultado: r3,
+        pontos_equipe1: pontosE1,
+        pontos_equipe2: pontosE2
+      };
+
+      const { error } = await supabase.from(TABELA_ARENA1).insert([payload]);
+      if (error) {
+        console.error(error);
+        msg.textContent = "Erro ao salvar na Arena 1 (ver console).";
+        msg.className = "msg erro";
+      } else {
+        msg.textContent = `Resultado salvo! E1: ${pontosE1} pontos | E2: ${pontosE2} pontos.`;
+        msg.className = "msg ok";
+        document.getElementById("formArena1").reset();
+        syncJuiz();
+      }
+    }
+
+    // ================= ARENA 3 – MISSÕES =========================
+    const MISSOES_ARENA3 = [
+      {
+        id: "m01",
+        nome: "M01 - Cidades e Comunidades Sustentáveis",
+        desc: "Veículo parado na rampa (10 pts) e totalmente na área plana (20 pts). -15 pts por interrupção.",
+        crit1Label: "Veículo parado na rampa (10 pts)",
+        crit1Pts: 10,
+        crit2Label: "Veículo totalmente na área plana (20 pts)",
+        crit2Pts: 20
+      },
+      {
+        id: "m02",
+        nome: "M02 - Reduzir o aquecimento global",
+        desc: "Ficha parcialmente na área P2 (10 pts) e totalmente na P2 (20 pts). -15 pts por interrupção.",
+        crit1Label: "Ficha parcialmente na área P2 (10 pts)",
+        crit1Pts: 10,
+        crit2Label: "Ficha totalmente na área P2 (20 pts)",
+        crit2Pts: 20
+      },
+      {
+        id: "m03",
+        nome: "M03 - Indústria Inovação e Infraestrutura",
+        desc: "Bloco parcialmente na área P2 (10 pts) e totalmente na P2 (20 pts). -15 pts por interrupção.",
+        crit1Label: "Bloco parcialmente na área P2 (10 pts)",
+        crit1Pts: 10,
+        crit2Label: "Bloco totalmente na área P2 (20 pts)",
+        crit2Pts: 20
+      },
+      {
+        id: "m04",
+        nome: "M04 - A Robótica e a Vida Terrestre",
+        desc: "Primeira queda de placa (20 pts) e segunda queda (40 pts). -15 pts por interrupção.",
+        crit1Label: "Queda da primeira placa (20 pts)",
+        crit1Pts: 20,
+        crit2Label: "Queda da segunda placa (40 pts)",
+        crit2Pts: 40
+      },
+      {
+        id: "m05",
+        nome: "M05 - Energia Limpa e Acessível",
+        desc: "Giro entre A e B (20 pts) e entre B e C (40 pts). -15 pts por interrupção.",
+        crit1Label: "Giro entre A e B (20 pts)",
+        crit1Pts: 20,
+        crit2Label: "Giro entre B e C (40 pts)",
+        crit2Pts: 40
+      },
+      {
+        id: "m06",
+        nome: "M06 - Parcerias e Meios de Implementação",
+        desc: "Alavanca entre A e B (20 pts) e entre B e C (40 pts). -15 pts por interrupção.",
+        crit1Label: "Alavanca entre A e B (20 pts)",
+        crit1Pts: 20,
+        crit2Label: "Alavanca entre B e C (40 pts)",
+        crit2Pts: 40
+      },
+      {
+        id: "m07",
+        nome: "M07 - Consumo e Produção Responsável",
+        desc: "Barra 1 (20 pts) e barra 2 (40 pts). -15 pts por interrupção.",
+        crit1Label: "Barra 1 – Produção responsável (20 pts)",
+        crit1Pts: 20,
+        crit2Label: "Barra 2 – Consumo adequado (40 pts)",
+        crit2Pts: 40
+      },
+      {
+        id: "m08",
+        nome: "M08 - Educação de Qualidade",
+        desc: "Movimento parcial (20 pts) e movimento perfeito (40 pts). -15 pts por interrupção.",
+        crit1Label: "Equipamento parcialmente deslocado (20 pts)",
+        crit1Pts: 20,
+        crit2Label: "Equipamento perfeitamente deslocado (40 pts)",
+        crit2Pts: 40
+      },
+      {
+        id: "m09",
+        nome: "M09 - Robótica e Crescimento Econômico",
+        desc: "Moeda parcial (20 pts) e moeda no recipiente (40 pts). -15 pts por interrupção.",
+        crit1Label: "Moeda parcialmente deslocada (20 pts)",
+        crit1Pts: 20,
+        crit2Label: "Moeda no recipiente adequado (40 pts)",
+        crit2Pts: 40
+      },
+      {
+        id: "m10",
+        nome: "M10 - Água Potável e Saneamento",
+        desc: "Barra sem deslocar esfera (20 pts) e barra deslocando esfera até o final (40 pts). -15 pts por interrupção.",
+        crit1Label: "Barra sem deslocar esfera (20 pts)",
+        crit1Pts: 20,
+        crit2Label: "Barra deslocando esfera até o recipiente (40 pts)",
+        crit2Pts: 40
+      }
+    ];
+
+    function criarCamposMissoes() {
+      const checklist = document.getElementById("missoesChecklist");
+      const container = document.getElementById("missoesContainer");
+
+      MISSOES_ARENA3.forEach((m, idx) => {
+        // checkbox-card
+        const cbWrapper = document.createElement("label");
+        cbWrapper.className = "checkbox-missao";
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.id = `${m.id}_chk`;
+
+        const span = document.createElement("span");
+        const icon = document.createElement("span");
+        icon.className = "icone";
+        icon.textContent = m.id.toUpperCase().replace("M", "");
+        const text = document.createElement("span");
+        text.textContent = m.nome;
+
+        span.appendChild(icon);
+        span.appendChild(text);
+
+        cbWrapper.appendChild(cb);
+        cbWrapper.appendChild(span);
+        checklist.appendChild(cbWrapper);
+
+        // bloco da missão
+        const div = document.createElement("div");
+        div.className = "grupo-missao missao-detalhe";
+        div.id = `${m.id}_grupo`;
+        div.innerHTML = `
+          <h4>${m.nome}</h4>
+          <p class="descricao-missao">${m.desc}</p>
+          <div class="linha">
+            <div class="campo">
+              <label>
+                ${m.crit1Label}
+                <select id="${m.id}_c1">
+                  <option value="nao">Não</option>
+                  <option value="sim">Sim</option>
+                </select>
+              </label>
+            </div>
+            <div class="campo">
+              <label>
+                ${m.crit2Label}
+                <select id="${m.id}_c2">
+                  <option value="nao">Não</option>
+                  <option value="sim">Sim</option>
+                </select>
+              </label>
+            </div>
+            <div class="campo">
+              <label>
+                Interrupções (0 a 10)
+                <input type="number" id="${m.id}_int" min="0" max="10" value="0" />
+              </label>
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+
+        cb.addEventListener("change", () => {
+          const ativo = cb.checked;
+          if (ativo) {
+            cbWrapper.classList.add("ativa");
+            div.classList.add("ativa");
+          } else {
+            cbWrapper.classList.remove("ativa");
+            div.classList.remove("ativa");
+            document.getElementById(`${m.id}_c1`).value = "nao";
+            document.getElementById(`${m.id}_c2`).value = "nao";
+            document.getElementById(`${m.id}_int`).value = "0";
+          }
+          calcularTotalArena3();
+        });
+      });
+
+      container.addEventListener("input", calcularTotalArena3);
+      document.getElementById("m00_cumpriu").addEventListener("change", calcularTotalArena3);
+    }
+
+    function calcularTotalArena3() {
+      let total = 0;
+
+      MISSOES_ARENA3.forEach(m => {
+        const chk = document.getElementById(`${m.id}_chk`);
+        if (!chk.checked) return;
+
+        const c1 = document.getElementById(`${m.id}_c1`).value;
+        const c2 = document.getElementById(`${m.id}_c2`).value;
+        let interrupcoes = parseInt(document.getElementById(`${m.id}_int`).value, 10);
+        if (isNaN(interrupcoes) || interrupcoes < 0) interrupcoes = 0;
+
+        let pontos = 0;
+        if (c1 === "sim") pontos += m.crit1Pts;
+        if (c2 === "sim") pontos += m.crit2Pts;
+        pontos -= interrupcoes * 15;
+
+        total += pontos;
+      });
+
+      document.getElementById("a3_total").textContent = total;
+      return total;
+    }
+
+    async function enviarArena3(event) {
+      event.preventDefault();
+      const msg = document.getElementById("msgArena3");
+      msg.textContent = "";
+      msg.className = "msg";
+
+      const juiz = document.getElementById("a3_juiz").value.trim();
+      const equipe = document.getElementById("a3_equipe").value;
+      const round = document.getElementById("a3_round").value;
+      const m00 = document.getElementById("m00_cumpriu").value;
+
+      if (!juiz || !equipe || !round) {
+        msg.textContent = "Preencha juiz, equipe e round.";
+        msg.className = "msg erro";
+        return;
+      }
+
+      const total = calcularTotalArena3();
+
+      const payload = {
+        juiz,
+        equipe,
+        round: parseInt(round, 10),
+        m00_cumpriu: m00 === "sim",
+        total_pontos: total
+      };
+
+      MISSOES_ARENA3.forEach(m => {
+        const chk = document.getElementById(`${m.id}_chk`).checked;
+        let c1 = false, c2 = false, interrupcoes = 0;
+
+        if (chk) {
+          c1 = document.getElementById(`${m.id}_c1`).value === "sim";
+          c2 = document.getElementById(`${m.id}_c2`).value === "sim";
+          interrupcoes = parseInt(document.getElementById(`${m.id}_int`).value, 10) || 0;
+        }
+
+        payload[`${m.id}_selecionada`] = chk;
+        payload[`${m.id}_c1`] = c1;
+        payload[`${m.id}_c2`] = c2;
+        payload[`${m.id}_int`] = interrupcoes;
+      });
+
+      const { error } = await supabase.from(TABELA_ARENA3).insert([payload]);
+      if (error) {
+        console.error(error);
+        msg.textContent = "Erro ao salvar na Arena 3 (ver console).";
+        msg.className = "msg erro";
+      } else {
+        msg.textContent = `Resultado salvo! Total: ${total} pontos.`;
+        msg.className = "msg ok";
+        document.getElementById("formArena3").reset();
+        document.getElementById("a3_total").textContent = "0";
+        syncJuiz();
+      }
+    }
+
+    // ================= ARENA 4 – LÓGICA =========================
+    function atualizarTotalArena4() {
+      const v = parseInt(document.getElementById("a4_visual").value, 10) || 0;
+      const m = parseInt(document.getElementById("a4_movimento").value, 10) || 0;
+      const f = parseInt(document.getElementById("a4_funcionalidade").value, 10) || 0;
+      const o = parseInt(document.getElementById("a4_originalidade").value, 10) || 0;
+      const total = v + m + f + o;
+      document.getElementById("a4_total").textContent = total;
+      return total;
+    }
+
+    async function enviarArena4(event) {
+      event.preventDefault();
+      const msg = document.getElementById("msgArena4");
+      msg.textContent = "";
+      msg.className = "msg";
+
+      const juiz = document.getElementById("a4_juiz").value.trim();
+      const equipe = document.getElementById("a4_equipe").value;
+      let visual = parseInt(document.getElementById("a4_visual").value, 10);
+      let movimento = parseInt(document.getElementById("a4_movimento").value, 10);
+      let funcionalidade = parseInt(document.getElementById("a4_funcionalidade").value, 10);
+      let originalidade = parseInt(document.getElementById("a4_originalidade").value, 10);
+
+      if (!juiz || !equipe) {
+        msg.textContent = "Preencha juiz e equipe.";
+        msg.className = "msg erro";
+        return;
+      }
+
+      visual = Math.min(Math.max(visual || 0, 0), 20);
+      movimento = Math.min(Math.max(movimento || 0, 0), 30);
+      funcionalidade = Math.min(Math.max(funcionalidade || 0, 0), 30);
+      originalidade = Math.min(Math.max(originalidade || 0, 0), 20);
+
+      const total = visual + movimento + funcionalidade + originalidade;
+      document.getElementById("a4_total").textContent = total;
+
+      const payload = {
+        juiz,
+        equipe,
+        visual,
+        qualidade_movimento: movimento,
+        funcionalidade,
+        originalidade,
+        total_pontos: total
+      };
+
+      const { error } = await supabase.from(TABELA_ARENA4).insert([payload]);
+      if (error) {
+        console.error(error);
+        msg.textContent = "Erro ao salvar na Arena 4 (ver console).";
+        msg.className = "msg erro";
+      } else {
+        msg.textContent = `Resultado salvo! Total: ${total} pontos.`;
+        msg.className = "msg ok";
+        document.getElementById("formArena4").reset();
+        document.getElementById("a4_total").textContent = "0";
+        syncJuiz();
+      }
+    }
+
+    // ================= INIT =========================
+    window.addEventListener("DOMContentLoaded", () => {
+      preencherSelectsEquipes();
+      criarCamposMissoes();
+
+      document.getElementById("formArena1").addEventListener("submit", enviarArena1);
+      document.getElementById("formArena3").addEventListener("submit", enviarArena3);
+
+      ["a4_visual", "a4_movimento", "a4_funcionalidade", "a4_originalidade"].forEach(id => {
+        document.getElementById(id).addEventListener("input", atualizarTotalArena4);
+      });
+      document.getElementById("formArena4").addEventListener("submit", enviarArena4);
+    });
+  </script>
+</body>
+</html>
