@@ -394,6 +394,7 @@
           <select id="arenaSelect">
             <option value="">Escolha...</option>
             <option value="arena1">Arena 1 – Sumô de Robôs</option>
+            <option value="arena2">Arena 2 – Seguidor de Linha</option>
             <option value="arena3">Arena 3 – Robô Lego e Desafios</option>
             <option value="arena4">Arena 4 – Robô Dançarino</option>
           </select>
@@ -464,6 +465,97 @@
 
           <button type="submit">Salvar resultado Arena 1</button>
           <div class="msg" id="msgArena1"></div>
+        </form>
+      </section>
+
+      <!-- ======================= ARENA 2 ======================= -->
+      <section class="arena-section" id="arena2">
+        <h2>ARENA 2 – Seguidor de Linha</h2>
+        <p class="descricao-arena">
+          O robô deve seguir a linha até o final da pista. Para cada round, a equipe tem
+          <strong>duas tentativas</strong>. Em cada tentativa são registrados o tempo e a distância percorrida.
+          O Power BI irá comparar as duas tentativas do round (menor tempo e maior distância) e depois
+          comparar o melhor resultado do Round 1 com o melhor resultado do Round 2.
+        </p>
+
+        <form id="formArena2">
+          <div class="linha">
+            <div class="campo">
+              <label for="a2_juiz">Juiz (preenchido automaticamente)</label>
+              <input type="text" id="a2_juiz" disabled />
+            </div>
+          </div>
+
+          <div class="linha">
+            <div class="campo">
+              <label for="a2_equipe">Equipe</label>
+              <select id="a2_equipe" class="select-equipe" required>
+                <option value="">Selecione a equipe</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="a2_round">Round</label>
+              <select id="a2_round" required>
+                <option value="">Selecione o round</option>
+                <option value="1">Round 1</option>
+                <option value="2">Round 2</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grupo-missao">
+            <h4>Tentativa 1</h4>
+            <div class="linha">
+              <div class="campo">
+                <label for="a2_t1_tempo">Tempo (segundos)</label>
+                <input type="number" id="a2_t1_tempo" min="0" step="0.01" />
+              </div>
+              <div class="campo">
+                <label for="a2_t1_distancia">Distância percorrida (cm ou % da pista)</label>
+                <input type="number" id="a2_t1_distancia" min="0" step="0.01" />
+              </div>
+              <div class="campo">
+                <label>
+                  Completou o circuito?
+                  <select id="a2_t1_completou">
+                    <option value="nao">Não</option>
+                    <option value="sim">Sim</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="grupo-missao">
+            <h4>Tentativa 2</h4>
+            <div class="linha">
+              <div class="campo">
+                <label for="a2_t2_tempo">Tempo (segundos)</label>
+                <input type="number" id="a2_t2_tempo" min="0" step="0.01" />
+              </div>
+              <div class="campo">
+                <label for="a2_t2_distancia">Distância percorrida (cm ou % da pista)</label>
+                <input type="number" id="a2_t2_distancia" min="0" step="0.01" />
+              </div>
+              <div class="campo">
+                <label>
+                  Completou o circuito?
+                  <select id="a2_t2_completou">
+                    <option value="nao">Não</option>
+                    <option value="sim">Sim</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <p class="descricao-arena">
+            Obs.: O cálculo de qual tentativa foi melhor e qual round é melhor
+            será feito diretamente no Power BI usando essas informações.
+          </p>
+
+          <button type="submit">Salvar resultados Arena 2</button>
+          <div class="msg" id="msgArena2"></div>
         </form>
       </section>
 
@@ -596,10 +688,11 @@
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
     // ================= CONFIGURAÇÃO SUPABASE ====================
-    const SUPABASE_URL = "https://vnasrqpcilxuksmgvprx.supabase.co"; // TROCAR
-    const SUPABASE_ANON_KEY = "sb_publishable_aALsWo2-IDZht6LiFskQwg_iCp3niYW"; // TROCAR
+    const SUPABASE_URL = "https://vnasrqpcilxuksmgvprx.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_aALsWo2-IDZht6LiFskQwg_iCp3niYW";
 
-    const TABELA_ARENA1 = "DM_Arena1"; // ajuste para o nome real
+    const TABELA_ARENA1 = "DM_Arena1";
+    const TABELA_ARENA2 = "DM_Arena2";
     const TABELA_ARENA3 = "DM_Arena3";
     const TABELA_ARENA4 = "DM_Arena4";
 
@@ -611,7 +704,7 @@
       "Equipe Beta",
       "Equipe Gama",
       "Equipe Delta"
-      // coloque todas as equipes aqui
+      // adicione as demais equipes aqui
     ];
 
     function preencherSelectsEquipes() {
@@ -664,7 +757,7 @@
 
     function syncJuiz() {
       const nome = juizGlobalInput.value.trim();
-      ["a1_juiz", "a3_juiz", "a4_juiz"].forEach(id => {
+      ["a1_juiz", "a2_juiz", "a3_juiz", "a4_juiz"].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = nome;
       });
@@ -752,6 +845,67 @@
         msg.textContent = `Resultado salvo! E1: ${pontosE1} pontos | E2: ${pontosE2} pontos.`;
         msg.className = "msg ok";
         document.getElementById("formArena1").reset();
+        syncJuiz();
+      }
+    }
+
+    // ================= ARENA 2 – LÓGICA (SEGUE LINHA) =========================
+    async function enviarArena2(event) {
+      event.preventDefault();
+      const msg = document.getElementById("msgArena2");
+      msg.textContent = "";
+      msg.className = "msg";
+
+      const juiz = document.getElementById("a2_juiz").value.trim();
+      const equipe = document.getElementById("a2_equipe").value;
+      const round = document.getElementById("a2_round").value;
+
+      const t1Tempo = document.getElementById("a2_t1_tempo").value;
+      const t1Dist = document.getElementById("a2_t1_distancia").value;
+      const t1Comp = document.getElementById("a2_t1_completou").value;
+
+      const t2Tempo = document.getElementById("a2_t2_tempo").value;
+      const t2Dist = document.getElementById("a2_t2_distancia").value;
+      const t2Comp = document.getElementById("a2_t2_completou").value;
+
+      if (!juiz || !equipe || !round) {
+        msg.textContent = "Preencha juiz, equipe e round.";
+        msg.className = "msg erro";
+        return;
+      }
+
+      // Pelo menos um conjunto de valores precisa estar preenchido
+      const tentativa1Preenchida = t1Tempo || t1Dist;
+      const tentativa2Preenchida = t2Tempo || t2Dist;
+      if (!tentativa1Preenchida && !tentativa2Preenchida) {
+        msg.textContent = "Preencha ao menos uma das tentativas (tempo e/ou distância).";
+        msg.className = "msg erro";
+        return;
+      }
+
+      const payload = {
+        juiz,
+        equipe,
+        round: parseInt(round, 10),
+
+        t1_tempo: t1Tempo ? parseFloat(t1Tempo) : null,
+        t1_distancia: t1Dist ? parseFloat(t1Dist) : null,
+        t1_completou: t1Comp === "sim",
+
+        t2_tempo: t2Tempo ? parseFloat(t2Tempo) : null,
+        t2_distancia: t2Dist ? parseFloat(t2Dist) : null,
+        t2_completou: t2Comp === "sim"
+      };
+
+      const { error } = await supabase.from(TABELA_ARENA2).insert([payload]);
+      if (error) {
+        console.error(error);
+        msg.textContent = "Erro ao salvar na Arena 2 (ver console).";
+        msg.className = "msg erro";
+      } else {
+        msg.textContent = "Resultado do round salvo com sucesso (Arena 2).";
+        msg.className = "msg ok";
+        document.getElementById("formArena2").reset();
         syncJuiz();
       }
     }
@@ -854,7 +1008,7 @@
       const checklist = document.getElementById("missoesChecklist");
       const container = document.getElementById("missoesContainer");
 
-      MISSOES_ARENA3.forEach((m, idx) => {
+      MISSOES_ARENA3.forEach(m => {
         // checkbox-card
         const cbWrapper = document.createElement("label");
         cbWrapper.className = "checkbox-missao";
@@ -1081,6 +1235,7 @@
       criarCamposMissoes();
 
       document.getElementById("formArena1").addEventListener("submit", enviarArena1);
+      document.getElementById("formArena2").addEventListener("submit", enviarArena2);
       document.getElementById("formArena3").addEventListener("submit", enviarArena3);
 
       ["a4_visual", "a4_movimento", "a4_funcionalidade", "a4_originalidade"].forEach(id => {
