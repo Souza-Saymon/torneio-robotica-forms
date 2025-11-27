@@ -409,31 +409,20 @@
     // 2) Entre completados: menor tempo, e em empate de tempo, maior distância
     // 3) Entre não completados: maior distância, e em empate de distância, menor tempo
     function escolherMelhorTentativa(a, b) {
-      if (!a) return b;
-      if (!b) return a;
+  if (!a) return b;
+  if (!b) return a;
 
-      const aComp = !!a.completou;
-      const bComp = !!b.completou;
+  const tA = (a.tempo_segundos ?? Infinity);
+  const tB = (b.tempo_segundos ?? Infinity);
+  const dA = (a.distancia_cm ?? 0);
+  const dB = (b.distancia_cm ?? 0);
 
-      if (aComp && !bComp) return a;
-      if (bComp && !aComp) return b;
+  // Regra: menor tempo, em empate de tempo maior distância
+  if (tA !== tB) return tA < tB ? a : b;
+  if (dA !== dB) return dA > dB ? a : b;
+  return a;
+}
 
-      const tA = (a.tempo_segundos ?? Infinity);
-      const tB = (b.tempo_segundos ?? Infinity);
-      const dA = (a.distancia_cm ?? 0);
-      const dB = (b.distancia_cm ?? 0);
-
-      if (aComp && bComp) {
-        if (tA !== tB) return tA < tB ? a : b;
-        if (dA !== dB) return dA > dB ? a : b;
-        return a;
-      }
-
-      // nenhum completou
-      if (dA !== dB) return dA > dB ? a : b;
-      if (tA !== tB) return tA < tB ? a : b;
-      return a;
-    }
 
     // ================ BUSCA E CÁLCULO – ARENA 2 =================
 // ================ ARENA 2 =================
@@ -519,28 +508,18 @@ async function carregarArena2() {
     // 1) Quem completou o circuito vem na frente
     // 2) Entre quem completou, menor tempo é melhor; em empate, maior distância
     // 3) Entre quem não completou, maior distância; em empate, menor tempo
-    listaDetalhada.sort((a, b) => {
-      const aComp = a.completou;
-      const bComp = b.completou;
+// Ordenação para ranking: menor tempo, em empate maior distância
+listaDetalhada.sort((a, b) => {
+  const tA = a.tempo ?? Infinity;
+  const tB = b.tempo ?? Infinity;
+  const dA = a.distancia_m;
+  const dB = b.distancia_m;
 
-      if (aComp && !bComp) return -1;
-      if (bComp && !aComp) return 1;
+  if (tA !== tB) return tA - tB;   // menor tempo melhor
+  if (dA !== dB) return dB - dA;   // em empate de tempo, maior distância
+  return 0;
+});
 
-      const tA = a.tempo ?? Infinity;
-      const tB = b.tempo ?? Infinity;
-      const dA = a.distancia_m;
-      const dB = b.distancia_m;
-
-      if (aComp && bComp) {
-        if (tA !== tB) return tA - tB;   // menor tempo melhor
-        if (dA !== dB) return dB - dA;   // em empate de tempo, maior distância
-        return 0;
-      }
-
-      // ninguém completou
-      if (dA !== dB) return dB - dA;     // maior distância melhor
-      return tA - tB;                    // em empate de distância, menor tempo
-    });
 
     const labels = listaDetalhada.map(x => x.equipe);
     const valores = listaDetalhada.map(x => x.distancia_m);
