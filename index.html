@@ -361,8 +361,17 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Torneio de Robótica – Registro de Avaliações</h1>
+
+
+<div class="container">
+
+  <img 
+    src="https://upload.wikimedia.org/wikipedia/commons/8/86/Senac_logo.svg"
+    alt="Senac"
+    style="height:70px; display:block; margin:0 auto 16px;">
+
+  <h1>Painel – Torneio de Robótica</h1>
+
     <div class="subtitulo">
       Preencha o nome do juiz, escolha a arena e responda às perguntas específicas daquela prova.
     </div>
@@ -374,7 +383,7 @@
             <span>⚙️</span> Formulário dinâmico
           </div>
           <div style="font-size:13px; color:var(--cor-subtexto); margin-top:4px;">
-            Os dados são enviados diretamente para o Supabase para alimentar os indicadores de Resultados.
+            Os dados são enviados diretamente para o Supabase para alimentar o Power BI.
           </div>
         </div>
         <button type="button" id="themeToggle" class="theme-toggle">
@@ -474,7 +483,7 @@
         <p class="descricao-arena">
           O robô deve seguir a linha até o final da pista. Para cada round, a equipe tem
           <strong>duas tentativas</strong>. Em cada tentativa são registrados o tempo e a distância percorrida.
-          O indicador irá comparar as duas tentativas do round (menor tempo e maior distância) e depois
+          O Power BI irá comparar as duas tentativas do round (menor tempo e maior distância) e depois
           comparar o melhor resultado do Round 1 com o melhor resultado do Round 2.
         </p>
 
@@ -551,7 +560,7 @@
 
           <p class="descricao-arena">
             Obs.: O cálculo de qual tentativa foi melhor e qual round é melhor
-            será feito diretamente no Indicador usando essas informações.
+            será feito diretamente no Power BI usando essas informações.
           </p>
 
           <button type="submit">Salvar resultados Arena 2</button>
@@ -679,7 +688,7 @@
       </section>
 
       <div class="badge-rodape">
-        Dados enviados para Supabase → Indicador de Resultados (ranking por equipe).
+        Dados enviados para Supabase → Power BI (ranking por equipe).
       </div>
     </div>
   </div>
@@ -700,21 +709,33 @@
 
     // ================= LISTA DE EQUIPES =========================
     const EQUIPES = [
-      "Botzilla",
-      "É os Guri",
-      "Overdrive",
-      "PathFinders",
-      "Robóticos",
-      "Robotiniks",
-      "SigmaBots",
-      "T22 Rp",
-      "Realbot",
-      "QuadTech",
-      "FourCode",
-      "Flaming Thunders 1",
-      "Flaming Thunders 2",
-      "EMED SJC - NA LINHA",
-      "Equipe Senac Lapa Tito"
+  "ByteRacers",
+  "Horizon Engineers",
+  "XLR8",
+  "404PiNotFound",
+  "Artemis",
+  "UNAMED ENGINE",
+  "Engenheirando",
+  "Fúria robótica",
+  "Cyber_Hermes",
+  "Tech Tita",
+  "Engenharia de Barraca",
+  "CoreMotion",
+  "NaveZero",
+  "ProSpeed",
+  "NextStage",
+  "CodeBreakers",
+  "Tudo de Engenharia",
+  "ENGX",
+  "Robotec",
+  "Inova Core",
+  "Os Engenheirados", 
+  "NeuroDrive",
+  "Erro404",
+  "D.O.R",
+  "Esquadrão Sintaxe",
+  "Bug Mobile",
+  "Outras Equipes"
       // adicione as demais equipes aqui
     ];
 
@@ -1255,6 +1276,6 @@
       document.getElementById("formArena4").addEventListener("submit", enviarArena4);
     });
   </script>
+  
 </body>
 </html>
-
