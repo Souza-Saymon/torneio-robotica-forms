@@ -122,10 +122,9 @@
       color: var(--cor-subtexto);
     }
 
-    /* Wrapper controla a altura, canvas só preenche */
     .chart-wrapper {
       position: relative;
-      height: 260px;   /* ajuste aqui se quiser o gráfico mais alto/baixo */
+      height: 260px;
       margin-top: 4px;
     }
 
@@ -164,7 +163,7 @@
   </style>
 </head>
 <body>
-<div class="container">
+  <div class="container">
 
     <!-- LOGO SENAC -->
     <img 
@@ -180,7 +179,6 @@
     </div>
 
     <div class="top-bar">
-      <!-- Coloque aqui o link do SEU formulário de avaliação -->
       <a href="https://souza-saymon.github.io/torneio-robotica-forms/" class="botao-link" target="_blank">
         📝 Ir para formulário de avaliação
       </a>
@@ -266,7 +264,7 @@
     let chartArena3 = null;
     let chartArena4 = null;
 
-    // Helper para destruir/recriar gráfico, com imagem mais nítida e tooltip customizável
+    // Helper para destruir/recriar gráfico
     function renderChart(canvasId, existingChart, labels, data, tituloY, tooltipFormatter) {
       if (existingChart) {
         existingChart.destroy();
@@ -290,9 +288,8 @@
         },
         options: {
           responsive: true,
-          maintainAspectRatio: false,  // usa a altura do .chart-wrapper
-          devicePixelRatio: 2,         // melhora nitidez
-
+          maintainAspectRatio: false,
+          devicePixelRatio: 2,
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -355,7 +352,7 @@
       });
     }
 
-    // Helper ranking em lista
+    // Helper ranking
     function renderRanking(listaId, dadosOrdenados, labelPontuacao) {
       const ul = document.getElementById(listaId);
       ul.innerHTML = "";
@@ -373,7 +370,7 @@
       });
     }
 
-    // ================ BUSCA E CÁLCULO – ARENA 1 =================
+    // ================ ARENA 1 =================
     async function carregarArena1() {
       const statusEl = document.getElementById("statusArena1");
       statusEl.textContent = "Carregando dados...";
@@ -413,170 +410,166 @@
     }
 
     // ================ LÓGICA DE COMPARAÇÃO – ARENA 2 =================
-    // Função que escolhe a melhor tentativa entre duas, usando:
-    // 1) Quem completou o percurso ganha de quem não completou
-    // 2) Entre completados: menor tempo, e em empate de tempo, maior distância
-    // 3) Entre não completados: maior distância, e em empate de distância, menor tempo
     function escolherMelhorTentativa(a, b) {
-  if (!a) return b;
-  if (!b) return a;
+      if (!a) return b;
+      if (!b) return a;
 
-  const tA = (a.tempo_segundos ?? Infinity);
-  const tB = (b.tempo_segundos ?? Infinity);
-  const dA = (a.distancia_cm ?? 0);
-  const dB = (b.distancia_cm ?? 0);
+      const completouA = !!a.completou;
+      const completouB = !!b.completou;
 
-  // Regra: menor tempo, em empate de tempo maior distância
-  if (tA !== tB) return tA < tB ? a : b;
-  if (dA !== dB) return dA > dB ? a : b;
-  return a;
-}
+      if (completouA && !completouB) return a;
+      if (!completouA && completouB) return b;
 
+      const tA = a.tempo_segundos ?? Infinity;
+      const tB = b.tempo_segundos ?? Infinity;
+      const dA = a.distancia_cm ?? 0;
+      const dB = b.distancia_cm ?? 0;
 
-    // ================ BUSCA E CÁLCULO – ARENA 2 =================
-// ================ ARENA 2 =================
-async function carregarArena2() {
-  const statusEl = document.getElementById("statusArena2");
-  statusEl.textContent = "Carregando dados...";
-
-  try {
-    const { data, error } = await supabase
-      .from(TABELA_ARENA2)
-      .select(`
-        equipe,
-        round,
-        t1_tempo,
-        t2_tempo,
-        t1_distancia,
-        t2_distancia,
-        t1_completou,
-        t2_completou
-      `);
-
-    if (error) throw error;
-
-    // Melhor tentativa por equipe+round (já comparando T1 x T2)
-    const melhorPorRound = new Map(); // chave: "equipe__round"
-
-    data.forEach(row => {
-      if (!row.equipe || row.round == null) return;
-
-      const key = `${row.equipe}__${row.round}`;
-
-      // Monta as duas tentativas a partir das colunas da tabela
-      const tentativa1 = {
-        completou: !!row.t1_completou,
-        tempo_segundos: row.t1_tempo,
-        distancia_cm: row.t1_distancia
-      };
-
-      const tentativa2 = {
-        completou: !!row.t2_completou,
-        tempo_segundos: row.t2_tempo,
-        distancia_cm: row.t2_distancia
-      };
-
-      // Melhor da linha (entre T1 e T2)
-      const melhorLinha = escolherMelhorTentativa(tentativa1, tentativa2);
-
-      // Caso exista mais de um registro para a mesma equipe/round,
-      // ainda comparamos com o que já estava salvo
-      const atual = melhorPorRound.get(key);
-      const melhor = escolherMelhorTentativa(atual, melhorLinha);
-
-      melhorPorRound.set(key, melhor);
-    });
-
-    // Agora, melhor resultado GLOBAL por equipe (comparando Round 1 x Round 2)
-    const melhorPorEquipe = new Map();
-
-    melhorPorRound.forEach((bestRound, key) => {
-      const equipe = key.split("__")[0];
-      const atual = melhorPorEquipe.get(equipe);
-      const melhorGlobal = escolherMelhorTentativa(atual, bestRound);
-      melhorPorEquipe.set(equipe, melhorGlobal);
-    });
-
-    // Monta lista para o gráfico e ranking
-    const listaDetalhada = [];
-    melhorPorEquipe.forEach((best, equipe) => {
-      // Se distância está em cm no banco, converte para metros:
-      const distancia_m = (best.distancia_cm || 0) / 100; // se já estiver em metros, é só tirar o "/ 100"
-      const tempo = best.tempo_segundos ?? null;
-      const completou = !!best.completou;
-
-      listaDetalhada.push({
-        equipe,
-        distancia_m,
-        tempo,
-        completou
-      });
-    });
-
-    // Ordenação para ranking:
-    // 1) Quem completou o circuito vem na frente
-    // 2) Entre quem completou, menor tempo é melhor; em empate, maior distância
-    // 3) Entre quem não completou, maior distância; em empate, menor tempo
-// Ordenação para ranking: menor tempo, em empate maior distância
-listaDetalhada.sort((a, b) => {
-  const tA = a.tempo ?? Infinity;
-  const tB = b.tempo ?? Infinity;
-  const dA = a.distancia_m;
-  const dB = b.distancia_m;
-
-  if (tA !== tB) return tA - tB;   // menor tempo melhor
-  if (dA !== dB) return dB - dA;   // em empate de tempo, maior distância
-  return 0;
-});
-
-
-    const labels = listaDetalhada.map(x => x.equipe);
-    const valores = listaDetalhada.map(x => x.distancia_m);
-
-    // Gráfico: eixo Y = distância em metros, tooltip mostra tudo
-    chartArena2 = renderChart(
-      "chartArena2",
-      chartArena2,
-      labels,
-      valores,
-      "Distância percorrida (m)",
-      (ctx) => {
-        const idx = ctx.dataIndex;
-        const info = listaDetalhada[idx];
-        const partes = [];
-
-        partes.push(`Distância: ${info.distancia_m.toFixed(2)} m`);
-
-        if (info.tempo != null && isFinite(info.tempo)) {
-          partes.push(`Tempo: ${info.tempo.toFixed(2)} s`);
-        } else {
-          partes.push("Tempo: —");
-        }
-
-        partes.push(info.completou ? "Status: completou o circuito" : "Status: não completou");
-
-        return partes;
+      if (completouA && completouB) {
+        if (tA !== tB) return tA < tB ? a : b;
+        if (dA !== dB) return dA > dB ? a : b;
+        return a;
       }
-    );
 
-    // Ranking textual embaixo
-    const listaRanking = listaDetalhada.map(x => ({
-      equipe: x.equipe,
-      pontos: `${x.distancia_m.toFixed(2)} m | ${
-        x.tempo != null && isFinite(x.tempo) ? x.tempo.toFixed(2) + " s" : "tempo —"
-      }${x.completou ? " (completou)" : ""}`
-    }));
+      if (dA !== dB) return dA > dB ? a : b;
+      if (tA !== tB) return tA < tB ? a : b;
 
-    renderRanking("rankingArena2", listaRanking, "");
+      return a;
+    }
 
-    statusEl.textContent = `Registros avaliados: ${data.length}`;
-  } catch (err) {
-    console.error(err);
-    statusEl.textContent = "Erro ao carregar dados da Arena 2.";
-  }
-}
+    // ================ ARENA 2 =================
+    async function carregarArena2() {
+      const statusEl = document.getElementById("statusArena2");
+      statusEl.textContent = "Carregando dados...";
 
-    // ================ BUSCA E CÁLCULO – ARENA 3 =================
+      try {
+        const { data, error } = await supabase
+          .from(TABELA_ARENA2)
+          .select(`
+            equipe,
+            round,
+            t1_tempo,
+            t2_tempo,
+            t1_distancia,
+            t2_distancia,
+            t1_completou,
+            t2_completou
+          `);
+
+        if (error) throw error;
+
+        const melhorPorRound = new Map();
+
+        data.forEach(row => {
+          if (!row.equipe || row.round == null) return;
+
+          const key = `${row.equipe}__${row.round}`;
+
+          const tentativa1 = {
+            completou: !!row.t1_completou,
+            tempo_segundos: row.t1_tempo,
+            distancia_cm: row.t1_distancia
+          };
+
+          const tentativa2 = {
+            completou: !!row.t2_completou,
+            tempo_segundos: row.t2_tempo,
+            distancia_cm: row.t2_distancia
+          };
+
+          const melhorLinha = escolherMelhorTentativa(tentativa1, tentativa2);
+          const atual = melhorPorRound.get(key);
+          const melhor = escolherMelhorTentativa(atual, melhorLinha);
+
+          melhorPorRound.set(key, melhor);
+        });
+
+        const melhorPorEquipe = new Map();
+
+        melhorPorRound.forEach((bestRound, key) => {
+          const equipe = key.split("__")[0];
+          const atual = melhorPorEquipe.get(equipe);
+          const melhorGlobal = escolherMelhorTentativa(atual, bestRound);
+          melhorPorEquipe.set(equipe, melhorGlobal);
+        });
+
+        const listaDetalhada = [];
+        melhorPorEquipe.forEach((best, equipe) => {
+          const distancia_m = (best.distancia_cm || 0) / 100;
+          const tempo = best.tempo_segundos ?? null;
+          const completou = !!best.completou;
+
+          listaDetalhada.push({
+            equipe,
+            distancia_m,
+            tempo,
+            completou
+          });
+        });
+
+        // Ordenação conforme regra
+        listaDetalhada.sort((a, b) => {
+          if (a.completou && !b.completou) return -1;
+          if (!a.completou && b.completou) return 1;
+
+          const tA = a.tempo ?? Infinity;
+          const tB = b.tempo ?? Infinity;
+          const dA = a.distancia_m;
+          const dB = b.distancia_m;
+
+          if (a.completou && b.completou) {
+            if (tA !== tB) return tA - tB;
+            if (dA !== dB) return dB - dA;
+            return 0;
+          }
+
+          if (dA !== dB) return dB - dA;
+          if (tA !== tB) return tA - tB;
+          return 0;
+        });
+
+        // 🔹 AQUI era o que faltava: desenhar o gráfico da Arena 2
+        const labels = listaDetalhada.map(x => x.equipe);
+        const valores = listaDetalhada.map(x => x.distancia_m);
+
+        chartArena2 = renderChart(
+          "chartArena2",
+          chartArena2,
+          labels,
+          valores,
+          "Distância (m)",
+          (item) => {
+            const dados = listaDetalhada[item.dataIndex];
+            const partes = [];
+            partes.push(`Distância: ${dados.distancia_m.toFixed(2)} m`);
+            if (dados.tempo != null && isFinite(dados.tempo)) {
+              partes.push(`Tempo: ${dados.tempo.toFixed(2)} s`);
+            }
+            partes.push(dados.completou ? "Completou o circuito" : "Não completou");
+            return partes;
+          }
+        );
+
+        // Ranking textual
+        const listaRanking = listaDetalhada.map(x => ({
+          equipe: x.equipe,
+          pontos: `${x.distancia_m.toFixed(2)} m | ${
+            x.tempo != null && isFinite(x.tempo)
+              ? x.tempo.toFixed(2) + " s"
+              : "tempo —"
+          }${x.completou ? " (completou)" : ""}`
+        }));
+
+        renderRanking("rankingArena2", listaRanking, "");
+
+        statusEl.textContent = `Registros avaliados: ${data.length}`;
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "Erro ao carregar dados da Arena 2.";
+      }
+    }
+
+    // ================ ARENA 3 =================
     async function carregarArena3() {
       const statusEl = document.getElementById("statusArena3");
       statusEl.textContent = "Carregando dados...";
@@ -613,7 +606,7 @@ listaDetalhada.sort((a, b) => {
       }
     }
 
-    // ================ BUSCA E CÁLCULO – ARENA 4 =================
+    // ================ ARENA 4 =================
     async function carregarArena4() {
       const statusEl = document.getElementById("statusArena4");
       statusEl.textContent = "Carregando dados...";
@@ -676,10 +669,7 @@ listaDetalhada.sort((a, b) => {
       const btnRefresh = document.getElementById("btnRefresh");
       btnRefresh.addEventListener("click", atualizarTudo);
 
-      // primeira carga
       atualizarTudo();
-
-      // atualização automática a cada 15s
       setInterval(atualizarTudo, 15000);
     });
   </script>
